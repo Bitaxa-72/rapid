@@ -1,0 +1,62 @@
+.pc-hero {
+  min-height: 560px;
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 32px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 36px;
+  background: var(--panel);
+}
+
+.pc-mark {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  color: var(--bg);
+  background: var(--accent);
+  font-size: 54px;
+  font-weight: 900;
+}
+
+.pc-hero p {
+  margin: 0 0 18px;
+  color: var(--accent);
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.pc-hero h1 {
+  max-width: 760px;
+  margin: 0;
+  font-size: clamp(42px, 8vw, 88px);
+  line-height: 0.94;
+}
+
+.pc-hero button {
+  position: absolute;
+  right: 28px;
+  bottom: 28px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 7px;
+  padding: 0 16px;
+  color: var(--bg);
+  background: var(--ink);
+  font-weight: 850;
+}
+
+@media (width <= 760px) {
+  .pc-hero {
+    grid-template-columns: 1fr;
+    align-content: center;
+  }
+
+  .pc-mark {
+    width: 128px;
+  }
+}

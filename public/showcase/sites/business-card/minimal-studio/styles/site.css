@@ -1,0 +1,33 @@
+:root {
+  --paper: #fbfaf5;
+  --ink: #1e2427;
+  --muted: #6d746f;
+  --line: #ded8ca;
+  --accent: #9a5c37;
+  --soft: #ede6d8;
+
+  font-family: inter, ui-sans-serif, system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.site-shell {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 56px;
+}
+
+.component-error {
+  margin: 16px;
+  padding: 12px;
+  color: #7f1d1d;
+  background: #fee2e2;
+}

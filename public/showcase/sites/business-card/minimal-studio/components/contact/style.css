@@ -1,0 +1,45 @@
+.bc-contact {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: center;
+  margin-top: 24px;
+  padding: 28px;
+  border-radius: 8px;
+  color: #fff;
+  background: var(--ink);
+}
+
+.bc-contact p,
+.bc-contact h2 {
+  margin: 0;
+}
+
+.bc-contact p {
+  color: #d9c3a8;
+  font-weight: 800;
+}
+
+.bc-contact h2 {
+  max-width: 620px;
+  margin-top: 8px;
+  font-size: 28px;
+  line-height: 1.15;
+}
+
+.bc-contact button {
+  min-height: 46px;
+  border: 0;
+  border-radius: 7px;
+  padding: 0 16px;
+  color: var(--ink);
+  background: #fffdf8;
+  font-weight: 800;
+}
+
+@media (width <= 760px) {
+  .bc-contact {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,42 @@
+.directions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.directions article,
+.directions button {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.directions article {
+  min-height: 210px;
+  padding: 24px;
+}
+
+.directions h2 {
+  margin: 0 0 44px;
+}
+
+.directions p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.directions button {
+  grid-column: 1 / -1;
+  min-height: 56px;
+  color: #fff;
+  background: var(--accent);
+  font-weight: 850;
+}
+
+@media (width <= 760px) {
+  .directions {
+    grid-template-columns: 1fr;
+  }
+}

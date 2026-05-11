@@ -1,0 +1,38 @@
+.bc-services {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin-top: 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--line);
+}
+
+.bc-services article {
+  min-height: 210px;
+  padding: 24px;
+  background: #fffdf8;
+}
+
+.bc-services span {
+  color: var(--accent);
+  font-weight: 850;
+}
+
+.bc-services h2 {
+  margin: 42px 0 10px;
+  font-size: 26px;
+}
+
+.bc-services p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+@media (width <= 760px) {
+  .bc-services {
+    grid-template-columns: 1fr;
+  }
+}

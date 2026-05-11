@@ -1,0 +1,76 @@
+.bc-hero {
+  min-height: 520px;
+  display: grid;
+  align-content: space-between;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 28px;
+  background: #fffdf8;
+}
+
+.bc-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.bc-nav a {
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.bc-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 36px;
+  align-items: end;
+}
+
+.bc-kicker {
+  margin: 0 0 16px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.bc-hero h1 {
+  max-width: 720px;
+  margin: 0 0 18px;
+  font-size: clamp(42px, 7vw, 76px);
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.bc-hero p {
+  max-width: 560px;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.bc-portrait {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--soft);
+}
+
+.bc-portrait span {
+  color: var(--accent);
+  font-size: 56px;
+  font-weight: 850;
+}
+
+@media (width <= 760px) {
+  .bc-hero__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bc-portrait {
+    width: 190px;
+  }
+}

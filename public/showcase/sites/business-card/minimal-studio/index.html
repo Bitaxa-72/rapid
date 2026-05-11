@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Minimal studio</title>
+    <link rel="stylesheet" href="./styles/site.css" />
+  </head>
+  <body>
+    <main class="site-shell">
+      <div data-component="hero"></div>
+      <div data-component="services"></div>
+      <div data-component="contact"></div>
+    </main>
+    <script
+      type="module"
+      src="../../../runtime/component-loader.js"
+      data-site-root="."
+    ></script>
+    <script type="module" src="./scripts/site.js"></script>
+  </body>
+</html>

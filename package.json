@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "lint:styles": "stylelint \"src/**/*.css\"",
+    "lint:styles": "stylelint \"{src,public}/**/*.css\"",
     "format": "prettier . --write",
     "preview": "vite preview"
   },

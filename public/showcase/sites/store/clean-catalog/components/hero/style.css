@@ -1,0 +1,51 @@
+.store-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 26px;
+  align-items: center;
+  min-height: 380px;
+  border-radius: 8px;
+  padding: 34px;
+  color: #fff;
+  background: var(--accent);
+}
+
+.store-hero p {
+  margin: 0 0 14px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.store-hero h1 {
+  max-width: 680px;
+  margin: 0 0 18px;
+  font-size: clamp(40px, 7vw, 72px);
+  line-height: 0.98;
+}
+
+.store-hero span {
+  color: rgb(255 255 255 / 0.78);
+  font-size: 18px;
+}
+
+.store-bag {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 0.16);
+}
+
+.store-bag span {
+  width: 96px;
+  height: 116px;
+  border: 10px solid #fff;
+  border-top-width: 28px;
+  border-radius: 6px;
+}
+
+@media (width <= 760px) {
+  .store-hero {
+    grid-template-columns: 1fr;
+  }
+}

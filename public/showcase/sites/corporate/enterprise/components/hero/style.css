@@ -1,0 +1,43 @@
+.corp-hero {
+  min-height: 460px;
+  display: grid;
+  align-content: space-between;
+  border-radius: 8px;
+  padding: 32px;
+  color: #fff;
+  background: var(--ink);
+}
+
+.corp-hero nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  color: rgb(255 255 255 / 0.78);
+}
+
+.corp-hero strong {
+  color: #fff;
+}
+
+.corp-hero h1 {
+  max-width: 820px;
+  margin: 0 0 18px;
+  font-size: clamp(42px, 7vw, 78px);
+  line-height: 0.98;
+}
+
+.corp-hero p {
+  max-width: 620px;
+  margin: 0;
+  color: rgb(255 255 255 / 0.72);
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+@media (width <= 720px) {
+  .corp-hero nav {
+    align-items: start;
+    flex-direction: column;
+  }
+}

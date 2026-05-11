@@ -1,0 +1,43 @@
+.blog-cover {
+  min-height: 460px;
+  display: grid;
+  align-content: space-between;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 34px;
+  background:
+    linear-gradient(
+      120deg,
+      rgb(49 95 149 / 0.12),
+      transparent 60%
+    ),
+    var(--paper);
+}
+
+.blog-cover p {
+  margin: 0;
+  color: var(--accent);
+  font-family: inter, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.blog-cover h1 {
+  max-width: 860px;
+  margin: 0;
+  font-size: clamp(42px, 8vw, 86px);
+  line-height: 0.98;
+}
+
+.cover-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  color: var(--muted);
+  font-family: inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.cover-meta strong {
+  color: var(--ink);
+}

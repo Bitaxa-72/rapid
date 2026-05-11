@@ -1,0 +1,58 @@
+{
+  "sites": [
+    {
+      "id": "business-card",
+      "label": "Визитка",
+      "designs": [
+        {
+          "id": "minimal-studio",
+          "label": "Minimal studio",
+          "description": "Спокойная визитка для эксперта, студии или частной практики.",
+          "entry": "showcase/sites/business-card/minimal-studio/index.html"
+        },
+        {
+          "id": "personal-contrast",
+          "label": "Personal contrast",
+          "description": "Более контрастная личная страница с акцентом на сильное первое впечатление.",
+          "entry": "showcase/sites/business-card/personal-contrast/index.html"
+        }
+      ]
+    },
+    {
+      "id": "store",
+      "label": "Магазин",
+      "designs": [
+        {
+          "id": "clean-catalog",
+          "label": "Clean catalog",
+          "description": "Каталог с карточками товаров, промо-блоком и быстрым добавлением.",
+          "entry": "showcase/sites/store/clean-catalog/index.html"
+        }
+      ]
+    },
+    {
+      "id": "blog",
+      "label": "Блог",
+      "designs": [
+        {
+          "id": "editorial",
+          "label": "Editorial",
+          "description": "Медиа-лента с крупной обложкой, рубриками и подборкой статей.",
+          "entry": "showcase/sites/blog/editorial/index.html"
+        }
+      ]
+    },
+    {
+      "id": "corporate",
+      "label": "Корпоративный сайт",
+      "designs": [
+        {
+          "id": "enterprise",
+          "label": "Enterprise",
+          "description": "Структура для компании: оффер, показатели, направления и заявка.",
+          "entry": "showcase/sites/corporate/enterprise/index.html"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+.pc-proof {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.pc-proof article {
+  min-height: 150px;
+  display: grid;
+  align-content: end;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 22px;
+  background: var(--panel);
+}
+
+.pc-proof strong {
+  color: var(--accent);
+  font-size: 46px;
+}
+
+.pc-proof span {
+  color: var(--muted);
+}
+
+@media (width <= 720px) {
+  .pc-proof {
+    grid-template-columns: 1fr;
+  }
+}

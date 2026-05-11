@@ -1,0 +1,30 @@
+:root {
+  --bg: #fffaf2;
+  --ink: #211b17;
+  --muted: #7a6d64;
+  --line: #e0d3c3;
+  --accent: #315f95;
+  --paper: #fff;
+
+  font-family: georgia, 'Times New Roman', serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.site-shell {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 28px 0 54px;
+}
+
+button {
+  font: inherit;
+}
