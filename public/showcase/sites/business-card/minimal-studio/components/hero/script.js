@@ -3,7 +3,8 @@ export function mount(element) {
     .querySelector('.bc-nav a')
     .addEventListener('click', (event) => {
       event.preventDefault()
-      document
+      element
+        .getRootNode()
         .querySelector('#contact')
         ?.scrollIntoView({ behavior: 'smooth' })
     })
