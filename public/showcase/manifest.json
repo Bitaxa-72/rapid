@@ -2,7 +2,22 @@
   "sites": [
     {
       "id": "business-card",
+      "route": "card",
       "label": "Визитка",
+      "pages": [
+        {
+          "path": "/card",
+          "label": "Главная"
+        },
+        {
+          "path": "/card/services",
+          "label": "Услуги"
+        },
+        {
+          "path": "/card/contact",
+          "label": "Контакты"
+        }
+      ],
       "designs": [
         {
           "id": "minimal-studio",
@@ -13,14 +28,29 @@
         {
           "id": "personal-contrast",
           "label": "Personal contrast",
-          "description": "Более контрастная личная страница с акцентом на сильное первое впечатление.",
+          "description": "Контрастная личная страница с акцентом на сильное первое впечатление.",
           "entry": "showcase/sites/business-card/personal-contrast/index.html"
         }
       ]
     },
     {
       "id": "store",
+      "route": "shop",
       "label": "Магазин",
+      "pages": [
+        {
+          "path": "/shop",
+          "label": "Главная"
+        },
+        {
+          "path": "/shop/catalog",
+          "label": "Каталог"
+        },
+        {
+          "path": "/shop/delivery",
+          "label": "Доставка"
+        }
+      ],
       "designs": [
         {
           "id": "clean-catalog",
@@ -32,7 +62,22 @@
     },
     {
       "id": "blog",
+      "route": "blog",
       "label": "Блог",
+      "pages": [
+        {
+          "path": "/blog",
+          "label": "Главная"
+        },
+        {
+          "path": "/blog/articles",
+          "label": "Статьи"
+        },
+        {
+          "path": "/blog/about",
+          "label": "О блоге"
+        }
+      ],
       "designs": [
         {
           "id": "editorial",
@@ -44,7 +89,22 @@
     },
     {
       "id": "corporate",
+      "route": "corporate",
       "label": "Корпоративный сайт",
+      "pages": [
+        {
+          "path": "/corporate",
+          "label": "Главная"
+        },
+        {
+          "path": "/corporate/services",
+          "label": "Направления"
+        },
+        {
+          "path": "/corporate/contacts",
+          "label": "Контакты"
+        }
+      ],
       "designs": [
         {
           "id": "enterprise",

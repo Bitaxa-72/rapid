@@ -2,60 +2,21 @@ import './style.css'
 
 const basePath = import.meta.env.BASE_URL
 const manifestUrl = `${basePath}showcase/manifest.json`
+const designStoragePrefix = 'rapid:design:'
+const widgetPositionKey = 'rapid:switcher-position'
 
 const app = document.querySelector('#app')
 
 app.innerHTML = `
-  <main class="shell">
-    <section class="landing" aria-labelledby="landing-title">
-      <div class="landing__content">
-        <p class="eyebrow">Portfolio switchboard</p>
-        <h1 id="landing-title">Витрина готовых фронтов под разные задачи бизнеса</h1>
-        <p class="lead">
-          Один проект показывает несколько типов сайтов и их стилевые варианты. Клиент выбирает формат,
-          переключает дизайн и сразу смотрит рабочий вложенный сайт прямо на этой странице.
-        </p>
-        <div class="landing__actions">
-          <button class="primary-action" type="button" data-open-widget>
-            Выбрать сайт
-          </button>
-          <a class="secondary-action" href="#site-stage">Посмотреть структуру</a>
-        </div>
-      </div>
-
-      <div class="visual" aria-hidden="true">
-        <img src="${basePath}showcase/assets/portfolio-window.svg" alt="" />
-      </div>
-    </section>
-
-    <section class="structure-section" aria-labelledby="structure-title">
-      <div>
-        <p class="eyebrow">Project hierarchy</p>
-        <h2 id="structure-title">Верхний уровень управляет витриной, нижний хранит сайты как отдельные шаблоны.</h2>
-      </div>
-      <div class="structure-grid">
-        <code>public/showcase/manifest.json</code>
-        <code>public/showcase/sites/{тип}/{дизайн}/index.html</code>
-        <code>components/{block}/section.html</code>
-        <code>components/{block}/style.css</code>
-        <code>components/{block}/script.js</code>
-      </div>
-    </section>
-
-    <section class="site-stage" id="site-stage" aria-live="polite">
-      <div class="empty-site" data-empty-site>
-        <p class="eyebrow">Demo area</p>
-        <h2>Выбери нужный тебе сайт</h2>
-        <p>После выбора шаблон загрузится сюда, в текущую страницу, без iframe и отдельного окна.</p>
-      </div>
-      <div class="site-mount" data-site-mount></div>
-    </section>
-  </main>
+  <div class="page-root" data-page-root></div>
 
   <aside class="switcher" data-switcher aria-labelledby="switcher-title">
-    <button class="switcher__toggle" type="button" data-toggle-switcher aria-expanded="true">
-      Витрина
-    </button>
+    <div class="switcher__handle" data-drag-handle>
+      <span>Витрина</span>
+      <button class="switcher__toggle" type="button" data-toggle-switcher aria-expanded="true">
+        Свернуть
+      </button>
+    </div>
     <div class="switcher__body">
       <p class="eyebrow">Demo panel</p>
       <h2 id="switcher-title">Выбери нужный тебе сайт</h2>
@@ -63,7 +24,7 @@ app.innerHTML = `
       <label class="field">
         <span>Тип сайта</span>
         <select data-site-select>
-          <option value="">Нейтральное положение</option>
+          <option value="">Главная витрины</option>
         </select>
       </label>
 
@@ -73,17 +34,19 @@ app.innerHTML = `
       </label>
 
       <div class="selection-card" data-selection-info>
-        <strong>Пока ничего не выбрано</strong>
-        <span>Выбери тип сайта, и шаблон откроется ниже как часть текущей страницы.</span>
+        <strong>Пока открыт лендинг</strong>
+        <span>Выбери тип сайта, и откроется отдельный route: /shop, /blog, /card или /corporate.</span>
       </div>
-
-      <a class="open-current" data-open-current href="#" target="_blank" rel="noreferrer" hidden>
-        Открыть шаблон отдельно
-      </a>
     </div>
   </aside>
 `
 
+const pageRoot = app.querySelector('[data-page-root]')
+const switcher = app.querySelector('[data-switcher]')
+const dragHandle = app.querySelector('[data-drag-handle]')
+const switcherToggle = app.querySelector(
+  '[data-toggle-switcher]'
+)
 const siteSelect = app.querySelector('[data-site-select]')
 const designSelect = app.querySelector(
   '[data-design-select]'
@@ -92,23 +55,46 @@ const designField = app.querySelector('[data-design-field]')
 const selectionInfo = app.querySelector(
   '[data-selection-info]'
 )
-const siteMount = app.querySelector('[data-site-mount]')
-const emptySite = app.querySelector('[data-empty-site]')
-const openCurrent = app.querySelector('[data-open-current]')
-const openWidgetButton = app.querySelector(
-  '[data-open-widget]'
-)
-const switcher = app.querySelector('[data-switcher]')
-const switcherToggle = app.querySelector(
-  '[data-toggle-switcher]'
-)
 
 let manifest = null
-let shadowRoot = null
 let currentAbortController = null
+let isDragging = false
+let dragOffset = { x: 0, y: 0 }
 
-const normalizePath = (path) =>
-  `${basePath}${path}`.replace(/\/{2,}/g, '/')
+const siteStyles = new Set()
+
+const normalizeBase = () =>
+  basePath.endsWith('/') ? basePath : `${basePath}/`
+
+const toRouteUrl = (route) => {
+  const cleanRoute = route.replace(/^\/+/, '')
+  return cleanRoute
+    ? `${normalizeBase()}${cleanRoute}`
+    : normalizeBase()
+}
+
+const toAssetUrl = (path) =>
+  `${normalizeBase()}${path}`.replace(/\/{2,}/g, '/')
+
+const getCurrentRoute = () => {
+  const redirectedRoute = new URLSearchParams(
+    window.location.search
+  ).get('route')
+
+  if (redirectedRoute) {
+    const cleanUrl = toRouteUrl(redirectedRoute)
+    window.history.replaceState({}, '', cleanUrl)
+    return redirectedRoute
+  }
+
+  const base = normalizeBase()
+  const pathname = window.location.pathname
+  const route = pathname.startsWith(base)
+    ? pathname.slice(base.length)
+    : pathname.replace(/^\/+/, '')
+
+  return route ? `/${route.replace(/\/$/, '')}` : '/'
+}
 
 const fetchText = async (url, signal) => {
   const response = await fetch(url, { signal })
@@ -120,23 +106,133 @@ const fetchText = async (url, signal) => {
   return response.text()
 }
 
-const prepareShadowCss = (css) =>
-  css.replaceAll(':root', ':host')
+const createAbsoluteUrl = (
+  path,
+  rootUrl = window.location.origin
+) => new URL(path, rootUrl)
 
-const resetShadowRoot = () => {
-  if (!shadowRoot) {
-    shadowRoot = siteMount.attachShadow({ mode: 'open' })
-  }
-
-  shadowRoot.replaceChildren()
-  return shadowRoot
+const clearSiteAssets = () => {
+  siteStyles.forEach((node) => node.remove())
+  siteStyles.clear()
+  document.documentElement.removeAttribute('data-template')
 }
 
-const createAbsoluteUrl = (path, rootUrl) =>
-  new URL(path, rootUrl)
+const addSiteStyle = (css) => {
+  const style = document.createElement('style')
+  style.dataset.siteStyle = 'true'
+  style.textContent = css
+  document.head.append(style)
+  siteStyles.add(style)
+}
+
+const getSiteByRoute = (route) => {
+  const segment = route.split('/').filter(Boolean)[0]
+
+  return manifest.sites.find(
+    (site) => site.route === segment
+  )
+}
+
+const getPageByRoute = (site, route) =>
+  site.pages.find((page) => page.path === route) ??
+  site.pages[0]
+
+const getSavedDesign = (site) => {
+  const savedId = window.localStorage.getItem(
+    `${designStoragePrefix}${site.id}`
+  )
+  return (
+    site.designs.find((design) => design.id === savedId) ??
+    site.designs[0]
+  )
+}
+
+const renderLanding = () => {
+  clearSiteAssets()
+  document.title = 'Rapid portfolio showcase'
+  pageRoot.innerHTML = `
+    <main class="shell">
+      <section class="landing" aria-labelledby="landing-title">
+        <div class="landing__content">
+          <p class="eyebrow">Portfolio switchboard</p>
+          <h1 id="landing-title">Витрина готовых фронтов под разные задачи бизнеса</h1>
+          <p class="lead">
+            Здесь собраны разные сайты внутри одного проекта Rapid. Клиент выбирает формат
+            в плавающем виджете и переходит на отдельный раздел: /shop, /blog, /card или /corporate.
+          </p>
+          <div class="landing__actions">
+            <button class="primary-action" type="button" data-focus-widget>
+              Выбрать сайт
+            </button>
+            <a class="secondary-action" href="${toRouteUrl('/shop')}" data-route>Открыть магазин</a>
+          </div>
+        </div>
+
+        <div class="visual" aria-hidden="true">
+          <img src="${toAssetUrl('showcase/assets/portfolio-window.svg')}" alt="" />
+        </div>
+      </section>
+
+      <section class="structure-section" aria-labelledby="structure-title">
+        <div>
+          <p class="eyebrow">Routes</p>
+          <h2 id="structure-title">Каждый сайт открывается как самостоятельный раздел проекта.</h2>
+        </div>
+        <div class="structure-grid">
+          <code>/rapid/shop + /rapid/shop/catalog</code>
+          <code>/rapid/blog + /rapid/blog/articles</code>
+          <code>/rapid/card + /rapid/card/services</code>
+          <code>/rapid/corporate + /rapid/corporate/services</code>
+        </div>
+      </section>
+    </main>
+  `
+  pageRoot
+    .querySelector('[data-focus-widget]')
+    .addEventListener('click', () => {
+      switcher.classList.remove('is-collapsed')
+      switcherToggle.setAttribute('aria-expanded', 'true')
+      siteSelect.focus({ preventScroll: true })
+    })
+}
+
+const buildSiteNav = (site, currentRoute) => `
+  <nav class="site-route-nav" aria-label="Навигация сайта ${site.label}">
+    <a href="${toRouteUrl('/')}" data-route>Rapid</a>
+    ${site.pages
+      .map(
+        (page) => `
+          <a
+            href="${toRouteUrl(page.path)}"
+            data-route
+            ${page.path === currentRoute ? 'aria-current="page"' : ''}
+          >
+            ${page.label}
+          </a>
+        `
+      )
+      .join('')}
+  </nav>
+`
+
+const renderRoutePageContent = (site, page) => {
+  if (page.path === `/${site.route}`) {
+    return ''
+  }
+
+  return `
+    <section class="site-subpage">
+      <p>${site.label}</p>
+      <h2>${page.label}</h2>
+      <span>
+        Это отдельная вложенная страница раздела ${page.path}. Сейчас здесь символический контент,
+        дальше можно раскладывать ее на такие же компоненты section.html, style.css и script.js.
+      </span>
+    </section>
+  `
+}
 
 const loadComponent = async ({
-  shadow,
   siteRoot,
   componentName,
   mountPoint,
@@ -157,9 +253,7 @@ const loadComponent = async ({
     )
   ])
 
-  const style = document.createElement('style')
-  style.textContent = prepareShadowCss(css)
-  shadow.append(style)
+  addSiteStyle(css)
   mountPoint.innerHTML = html
 
   const scriptUrl = createAbsoluteUrl(
@@ -171,17 +265,27 @@ const loadComponent = async ({
   )
 
   if (typeof module.mount === 'function') {
-    module.mount(mountPoint, { root: shadow })
+    module.mount(mountPoint)
   }
 }
 
-const loadTemplateSite = async (design) => {
+const renderSite = async (route) => {
   currentAbortController?.abort()
   currentAbortController = new AbortController()
 
   const signal = currentAbortController.signal
+  const site = getSiteByRoute(route)
+
+  if (!site) {
+    renderLanding()
+    updateWidgetState('/')
+    return
+  }
+
+  const design = getSavedDesign(site)
+  const page = getPageByRoute(site, route)
   const entryUrl = createAbsoluteUrl(
-    normalizePath(design.entry),
+    toAssetUrl(design.entry),
     window.location.origin
   )
   const siteRoot = createAbsoluteUrl('.', entryUrl)
@@ -197,17 +301,14 @@ const loadTemplateSite = async (design) => {
     throw new Error('В шаблоне не найден .site-shell')
   }
 
-  const root = resetShadowRoot()
-  const baseStyle = document.createElement('style')
-  baseStyle.textContent = `
-    :host {
-      display: block;
-      width: 100%;
-      min-height: 100%;
-      background: transparent;
-    }
+  clearSiteAssets()
+  document.title = `${site.label} | ${page.label}`
+  pageRoot.innerHTML = `
+    <main class="site-page" data-site-page>
+      ${buildSiteNav(site, page.path)}
+      <div class="site-document" data-site-document></div>
+    </main>
   `
-  root.append(baseStyle)
 
   const stylesheetLinks = [
     ...documentFragment.querySelectorAll(
@@ -227,21 +328,23 @@ const loadTemplateSite = async (design) => {
     )
   )
 
-  stylesheetTexts.forEach((css) => {
-    const style = document.createElement('style')
-    style.textContent = prepareShadowCss(css)
-    root.append(style)
-  })
+  stylesheetTexts.forEach(addSiteStyle)
 
-  root.append(siteShell)
+  const documentNode = pageRoot.querySelector(
+    '[data-site-document]'
+  )
+  documentNode.append(siteShell)
+  documentNode.insertAdjacentHTML(
+    'beforeend',
+    renderRoutePageContent(site, page)
+  )
 
   const componentMounts = [
-    ...root.querySelectorAll('[data-component]')
+    ...documentNode.querySelectorAll('[data-component]')
   ]
   await Promise.all(
     componentMounts.map((mountPoint) =>
       loadComponent({
-        shadow: root,
         siteRoot,
         componentName: mountPoint.dataset.component,
         mountPoint,
@@ -267,41 +370,50 @@ const loadTemplateSite = async (design) => {
         script.getAttribute('src'),
         siteRoot
       )
-      const module = await import(
-        `${scriptUrl.href}?v=${Date.now()}`
-      )
-
-      if (typeof module.mount === 'function') {
-        module.mount(root)
-      }
+      await import(`${scriptUrl.href}?v=${Date.now()}`)
     })
   )
+
+  updateWidgetState(route)
+  window.scrollTo({ top: 0 })
 }
 
-const renderSiteOptions = (sites) => {
-  const options = sites
-    .map(
-      (site) =>
-        `<option value="${site.id}">${site.label}</option>`
-    )
-    .join('')
-
-  siteSelect.insertAdjacentHTML('beforeend', options)
+const navigateTo = (route) => {
+  window.history.pushState({}, '', toRouteUrl(route))
+  renderCurrentRoute()
 }
 
-const setNeutralState = () => {
-  currentAbortController?.abort()
-  designField.hidden = true
-  designSelect.innerHTML = ''
-  siteMount.innerHTML = ''
-  shadowRoot?.replaceChildren()
-  emptySite.hidden = false
-  openCurrent.hidden = true
-  openCurrent.href = '#'
-  selectionInfo.innerHTML = `
-    <strong>Пока ничего не выбрано</strong>
-    <span>Выбери тип сайта, и шаблон откроется ниже как часть текущей страницы.</span>
-  `
+const renderCurrentRoute = () => {
+  const route = getCurrentRoute()
+
+  if (route === '/') {
+    renderLanding()
+    updateWidgetState(route)
+    return
+  }
+
+  renderSite(route).catch((error) => {
+    pageRoot.innerHTML = `
+      <main class="route-error">
+        <p class="eyebrow">Route error</p>
+        <h1>Не удалось открыть страницу</h1>
+        <p>${error.message}</p>
+        <a href="${toRouteUrl('/')}" data-route>Вернуться на главную</a>
+      </main>
+    `
+  })
+}
+
+const renderSiteOptions = () => {
+  siteSelect.insertAdjacentHTML(
+    'beforeend',
+    manifest.sites
+      .map(
+        (site) =>
+          `<option value="${site.id}">${site.label}</option>`
+      )
+      .join('')
+  )
 }
 
 const renderDesignOptions = (site) => {
@@ -314,77 +426,177 @@ const renderDesignOptions = (site) => {
   designField.hidden = site.designs.length <= 1
 }
 
-const showSelection = (site, design) => {
+const updateWidgetState = (route) => {
+  const site = route === '/' ? null : getSiteByRoute(route)
+
+  if (!site) {
+    siteSelect.value = ''
+    designSelect.innerHTML = ''
+    designField.hidden = true
+    selectionInfo.innerHTML = `
+      <strong>Открыт лендинг</strong>
+      <span>Выбери сайт, чтобы перейти на отдельный раздел проекта.</span>
+    `
+    return
+  }
+
+  const design = getSavedDesign(site)
+  siteSelect.value = site.id
+  renderDesignOptions(site)
+  designSelect.value = design.id
   selectionInfo.innerHTML = `
     <strong>${site.label}: ${design.label}</strong>
     <span>${design.description}</span>
   `
-  openCurrent.href = normalizePath(design.entry)
-  openCurrent.hidden = false
 }
 
-const loadSelectedSite = async (siteId, designId) => {
-  const site = manifest.sites.find(
-    (item) => item.id === siteId
+const clampWidgetPosition = (x, y) => {
+  const rect = switcher.getBoundingClientRect()
+  const maxX = window.innerWidth - rect.width - 10
+  const maxY = window.innerHeight - rect.height - 10
+
+  return {
+    x: Math.max(10, Math.min(x, maxX)),
+    y: Math.max(10, Math.min(y, maxY))
+  }
+}
+
+const saveWidgetPosition = () => {
+  const rect = switcher.getBoundingClientRect()
+  window.localStorage.setItem(
+    widgetPositionKey,
+    JSON.stringify({ x: rect.left, y: rect.top })
+  )
+}
+
+const applyWidgetPosition = () => {
+  const stored = window.localStorage.getItem(
+    widgetPositionKey
   )
 
-  if (!site) {
-    setNeutralState()
+  if (!stored) {
     return
   }
 
-  const design =
-    site.designs.find((item) => item.id === designId) ??
-    site.designs[0]
-
-  if (!design) {
-    setNeutralState()
-    return
-  }
-
-  showSelection(site, design)
-  emptySite.hidden = true
-  siteMount.setAttribute('aria-busy', 'true')
+  let position
 
   try {
-    await loadTemplateSite(design)
-    siteMount.removeAttribute('aria-busy')
-    document.querySelector('#site-stage').scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
-    })
-  } catch (error) {
-    if (error.name === 'AbortError') {
+    position = JSON.parse(stored)
+  } catch {
+    window.localStorage.removeItem(widgetPositionKey)
+    return
+  }
+
+  const clamped = clampWidgetPosition(
+    position.x,
+    position.y
+  )
+  switcher.style.left = `${clamped.x}px`
+  switcher.style.top = `${clamped.y}px`
+  switcher.style.right = 'auto'
+}
+
+const initDrag = () => {
+  dragHandle.addEventListener('pointerdown', (event) => {
+    if (event.target.closest('button')) {
       return
     }
 
-    siteMount.removeAttribute('aria-busy')
-    emptySite.hidden = false
-    emptySite.innerHTML = `
-      <p class="eyebrow">Loading error</p>
-      <h2>Не удалось открыть шаблон</h2>
-      <p>${error.message}</p>
-    `
-  }
+    const rect = switcher.getBoundingClientRect()
+    isDragging = true
+    dragOffset = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top
+    }
+    dragHandle.setPointerCapture(event.pointerId)
+  })
+
+  dragHandle.addEventListener('pointermove', (event) => {
+    if (!isDragging) {
+      return
+    }
+
+    const position = clampWidgetPosition(
+      event.clientX - dragOffset.x,
+      event.clientY - dragOffset.y
+    )
+
+    switcher.style.left = `${position.x}px`
+    switcher.style.top = `${position.y}px`
+    switcher.style.right = 'auto'
+  })
+
+  dragHandle.addEventListener('pointerup', (event) => {
+    if (!isDragging) {
+      return
+    }
+
+    isDragging = false
+    dragHandle.releasePointerCapture(event.pointerId)
+    saveWidgetPosition()
+  })
 }
 
-const handleSiteChange = () => {
+siteSelect.addEventListener('change', () => {
   const site = manifest.sites.find(
     (item) => item.id === siteSelect.value
   )
 
   if (!site) {
-    setNeutralState()
+    navigateTo('/')
     return
   }
 
-  renderDesignOptions(site)
-  loadSelectedSite(site.id, site.designs[0]?.id)
-}
+  navigateTo(`/${site.route}`)
+})
 
-const handleDesignChange = () => {
-  loadSelectedSite(siteSelect.value, designSelect.value)
-}
+designSelect.addEventListener('change', () => {
+  const site = manifest.sites.find(
+    (item) => item.id === siteSelect.value
+  )
+
+  if (!site) {
+    return
+  }
+
+  window.localStorage.setItem(
+    `${designStoragePrefix}${site.id}`,
+    designSelect.value
+  )
+  renderCurrentRoute()
+})
+
+switcherToggle.addEventListener('click', () => {
+  const isCollapsed =
+    switcher.classList.toggle('is-collapsed')
+  switcherToggle.textContent = isCollapsed
+    ? 'Открыть'
+    : 'Свернуть'
+  switcherToggle.setAttribute(
+    'aria-expanded',
+    String(!isCollapsed)
+  )
+  saveWidgetPosition()
+})
+
+document.addEventListener('click', (event) => {
+  const routeLink = event.target.closest('[data-route]')
+
+  if (!routeLink) {
+    return
+  }
+
+  event.preventDefault()
+  navigateTo(
+    new URL(routeLink.href).pathname.replace(
+      normalizeBase(),
+      '/'
+    )
+  )
+})
+
+window.addEventListener('popstate', renderCurrentRoute)
+window.addEventListener('resize', applyWidgetPosition)
 
 const init = async () => {
   const response = await fetch(manifestUrl)
@@ -396,31 +608,18 @@ const init = async () => {
   }
 
   manifest = await response.json()
-  renderSiteOptions(manifest.sites)
-  setNeutralState()
+  renderSiteOptions()
+  initDrag()
+  renderCurrentRoute()
+  requestAnimationFrame(applyWidgetPosition)
 }
 
-openWidgetButton.addEventListener('click', () => {
-  switcher.classList.remove('is-collapsed')
-  switcherToggle.setAttribute('aria-expanded', 'true')
-  siteSelect.focus({ preventScroll: true })
-})
-
-switcherToggle.addEventListener('click', () => {
-  const isCollapsed =
-    switcher.classList.toggle('is-collapsed')
-  switcherToggle.setAttribute(
-    'aria-expanded',
-    String(!isCollapsed)
-  )
-})
-
-siteSelect.addEventListener('change', handleSiteChange)
-designSelect.addEventListener('change', handleDesignChange)
-
 init().catch((error) => {
-  selectionInfo.innerHTML = `
-    <strong>Не удалось загрузить витрину</strong>
-    <span>${error.message}</span>
+  pageRoot.innerHTML = `
+    <main class="route-error">
+      <p class="eyebrow">Loading error</p>
+      <h1>Не удалось загрузить витрину</h1>
+      <p>${error.message}</p>
+    </main>
   `
 })

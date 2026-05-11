@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Rapid redirect</title>
+  </head>
+  <body>
+    <script>
+      const base = '/rapid/'
+      const path = window.location.pathname
+      const route = path.startsWith(base)
+        ? path.slice(base.length)
+        : path.replace(/^\/+/, '')
+      const hash = window.location.hash
+
+      window.location.replace(
+        `${base}?route=${encodeURIComponent(`/${route}`)}${hash}`
+      )
+    </script>
+  </body>
+</html>
